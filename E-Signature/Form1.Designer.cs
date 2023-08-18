@@ -30,10 +30,11 @@
         {
             this.Sign = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.controlSignature = new System.Windows.Forms.Button();
+            this.passwordArea = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.fileLabel = new System.Windows.Forms.Label();
+            this.bckWorker = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // Sign
@@ -57,22 +58,23 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // button2
+            // controlSignature
             // 
-            this.button2.Location = new System.Drawing.Point(151, 334);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(530, 34);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Control E-Signature Existance";
-            this.button2.UseVisualStyleBackColor = true;
+            this.controlSignature.Location = new System.Drawing.Point(151, 334);
+            this.controlSignature.Name = "controlSignature";
+            this.controlSignature.Size = new System.Drawing.Size(530, 34);
+            this.controlSignature.TabIndex = 2;
+            this.controlSignature.Text = "Control E-Signature Existance";
+            this.controlSignature.UseVisualStyleBackColor = true;
+            this.controlSignature.Click += new System.EventHandler(this.controlSignature_Click);
             // 
-            // textBox1
+            // passwordArea
             // 
-            this.textBox1.Location = new System.Drawing.Point(269, 112);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(412, 22);
-            this.textBox1.TabIndex = 3;
-            this.textBox1.UseSystemPasswordChar = true;
+            this.passwordArea.Location = new System.Drawing.Point(269, 112);
+            this.passwordArea.Name = "passwordArea";
+            this.passwordArea.Size = new System.Drawing.Size(412, 22);
+            this.passwordArea.TabIndex = 3;
+            this.passwordArea.UseSystemPasswordChar = true;
             // 
             // label1
             // 
@@ -100,8 +102,8 @@
             this.ClientSize = new System.Drawing.Size(845, 461);
             this.Controls.Add(this.fileLabel);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.passwordArea);
+            this.Controls.Add(this.controlSignature);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.Sign);
             this.Cursor = System.Windows.Forms.Cursors.Default;
@@ -116,10 +118,12 @@
 
         private System.Windows.Forms.Button Sign;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button controlSignature;
+        private System.Windows.Forms.TextBox passwordArea;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label fileLabel;
+        private System.ComponentModel.BackgroundWorker bckWorker;
+
     }
 }
 
