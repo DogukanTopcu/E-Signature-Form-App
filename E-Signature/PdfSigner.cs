@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.IO;
 
 using System.Security.Cryptography.X509Certificates;
+using Org.BouncyCastle.Pkcs;
+using ITextSharp::iTextSharp.text;
+using ITextSharp::iTextSharp.text.pdf;
+using ITextSharp::iTextSharp.text.pdf.security;
 using tr.gov.tubitak.uekae.esya.api.common.util;
-using ITextSharp.iTextSharp.text.pdf.security;
-using ITextSharp.iTextSharp.text.pdf;
 using System.Windows.Forms;
-using X509Certificate = ITextSharp.Org.BouncyCastle.X509.X509Certificate;
+using Org.BouncyCastle.Ocsp;
 
 
 namespace E_Signature
@@ -42,11 +44,11 @@ namespace E_Signature
             return chain;
         }
 
-        private static ICollection<ITextSharp.Org.BouncyCastle.X509.X509Certificate> chainToBouncyCastle(X509Certificate2[] chain)
+        private static ICollection<Org.BouncyCastle.X509.X509Certificate> chainToBouncyCastle(X509Certificate2[] chain)
         {
-            ITextSharp.Org.BouncyCastle.X509.X509CertificateParser cp = new ITextSharp.Org.BouncyCastle.X509.X509CertificateParser();
+            Org.BouncyCastle.X509.X509CertificateParser cp = new Org.BouncyCastle.X509.X509CertificateParser();
 
-            ICollection<ITextSharp.Org.BouncyCastle.X509.X509Certificate> Bouncychain = new List<ITextSharp.Org.BouncyCastle.X509.X509Certificate>();
+            ICollection<Org.BouncyCastle.X509.X509Certificate> Bouncychain = new List<Org.BouncyCastle.X509.X509Certificate>();
             int index = 0;
             foreach (var item in chain)
             {
@@ -61,63 +63,36 @@ namespace E_Signature
             X509Certificate2 signingCertificate;
             IExternalSignature externalSignature;
 
-            Console.WriteLine("PdfSigner, SignPDF, SelectSignature");
             // Problem here!!!
             this.SelectSignature(request, out signingCertificate, out externalSignature);
-            Console.WriteLine("PdfSigner, SignPDF, SelectSignature passed");
-
-            Console.WriteLine("PdfSigner, SignPDF, generateCertificateChain");
             X509Certificate2[] chain = generateCertificateChain(signingCertificate);
-            Console.WriteLine("PdfSigner, SignPDF, generateCertificateChain passed");
-
-            Console.WriteLine("PdfSigner, SignPDF, chainToBouncyCastle");
-            ICollection<X509Certificate> Bouncychain = chainToBouncyCastle(chain);
-            Console.WriteLine("PdfSigner, SignPDF, chainToBouncyCastle passed");
-
+            ICollection<Org.BouncyCastle.X509.X509Certificate> Bouncychain = chainToBouncyCastle(chain);
             ocsp = new OcspClientBouncyCastle();
-
             crl = new ITextSharp.iTextSharp.text.pdf.security.CrlClientOnline(Bouncychain);
-
             PdfReader pdfReader = new PdfReader(PDFContent);
             MemoryStream stream = new MemoryStream();
-
-            Console.WriteLine("PdfSigner, SignPDF, CreateSignature");
             PdfStamper pdfStamper = PdfStamper.CreateSignature(pdfReader, stream, '\0', "", true);
-            Console.WriteLine("PdfSigner, SignPDF, CreateSignature passed");
-
             PdfSignatureAppearance signatureAppearance = pdfStamper.SignatureAppearance;
+
             crlList = new List<ICrlClient>();
             crlList.Add(crl);
+
             lock (lockSign)
             {
-                // ITextSharp.iTextSharp.text.pdf.security.MakeSignature.SignDetached(signatureAppearance, externalSignature, Bouncychain, crlList, ocsp, null, 0, CryptoStandard.CMS);
-                // MakeSignature.SignDetached(signatureAppearance, externalSignature, Bouncychain, crlList, ocsp, null, 0, CryptoStandard.CMS);
+                MakeSignature.SignDetached(signatureAppearance, externalSignature, Bouncychain, crlList, ocsp, null, 0, CryptoStandard.CMS);
             }
             return stream.ToArray();
         }
 
         private void SelectSignature(Data request, out X509Certificate2 CERTIFICATE, out IExternalSignature externalSignature)
         {
-            Console.WriteLine("SelectSignature:");
             try
             {
-                Console.WriteLine("SelectSignature, SmartCardManager");
                 // Problem here!!!
                 SmartCardManager smartCardManager = SmartCardManager.getInstance();
-                Console.WriteLine("SelectSignature, SmartCardManager passed");
-
-                Console.WriteLine("SelectSignature, smartCardCertificate setting");
                 var smartCardCertificate = smartCardManager.getSignatureCertificate(false, false);
-                Console.WriteLine("SelectSignature, smartCardCertificate setted");
-
-                Console.WriteLine("SelectSignature, smartCardManager.getSigner");
                 var signer = smartCardManager.getSigner(request.DonglePassword, smartCardCertificate);
-                Console.WriteLine("SelectSignature, smartCardManager.getSigner passed");
-
-                Console.WriteLine("CERTIFICATE:");
                 CERTIFICATE = smartCardCertificate.asX509Certificate2();
-                Console.WriteLine(CERTIFICATE);
-
                 externalSignature = new SmartCardSignature(signer, CERTIFICATE, "SHA-256");
 
             }

@@ -191,12 +191,8 @@ namespace E_Signature
         {
             try
             {
-                Console.WriteLine("New SmartCardManager will be created");
-
-                Console.WriteLine("SmartCardManager, GetCardTerminals");
                 // Problem here!!!
                 String[] terminals = SmartOp.getCardTerminals();
-                Console.WriteLine("SmartCardManager, GetCardTerminals passed");
                 Console.WriteLine(terminals);
 
                 
